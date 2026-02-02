@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# React AI bot with SSE Streaming
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app demonstrats how to integrate Server-Sent Events (SSE) for streaming AI responses in a React.js application. The project provides a simple example of real-time AI output, simulating a ChatGPT-like interface with incremental, typewriter-style updates.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* **Real-time Streaming**: Word-by-word "typewriter" effect using `ReadableStream`.
+* **Custom Hook Logic**: Encapsulated streaming logic in `useChatBotResponse`.
+* **Modern UI**: Styled with Tailwind CSS and `@tailwindcss/typography` for professional Markdown rendering.
+* **Type Safe**: Fully typed with TypeScript, including React 19 specific event handling.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Framework**: [React 19](https://react.dev/)
+* **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+* **Language**: [TypeScript](https://www.typescript.org/)
+* **Markdown**: [react-markdown](https://github.com/remarkjs/react-markdown)
+* **API**: [Hugging Face Inference Router](https://huggingface.co/docs/inference-providers/tasks/chat-completion)
 
-## Expanding the ESLint configuration
+## ⚙️ Local Setup
+1.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+2.  **Environment Variables:**
+    Copy the `.env.sample` file to a new file named `.env`:
+    ```bash
+    cp .env.sample .env
+    ```
+    Open `.env` and paste Hugging Face token:
+    ```env
+    VITE_HF_TOKEN=hf_your_token_here
+    ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+4.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🧠 Architecture: How it Works
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The project is split into two main parts:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 1. The Logic Hook (`useChatBotResponse.ts`)
+This hook manages the binary stream. It uses `fetch` to connect to the Hugging Face SSE endpoint. It uses a **buffer** strategy to handle partial JSON chunks, ensuring the app doesn't crash if a network packet cuts a JSON string in half.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 2. The UI Component (`App.tsx`)
+A clean, responsive Tailwind interface that consumes the hook. It uses `react-markdown` to render the AI's response with proper formatting (bold, lists, etc.) and handles auto-scrolling to the bottom as new text arrives.
